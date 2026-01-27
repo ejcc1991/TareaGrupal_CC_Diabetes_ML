@@ -1,53 +1,75 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import pickle
+from fastapi import FastAPI
+from pydantic import BaseModel, Field # <--- IMPORTANTE: Agregar Field aquí
+import joblib
 import pandas as pd
-import os
 
-app = FastAPI(title="API Diabetes UAI", version="1.0")
+app = FastAPI()
 
-# --- CORRECCIÓN: Rutas directas (están en la misma carpeta) ---
-MODEL_PATH = "model.pkl"
-SCALER_PATH = "scaler.pkl"
+# Cargar el modelo (asegúrate de que el nombre del archivo sea el correcto)
+model = joblib.load("random_forest_model.pkl")
 
-# Cargar modelos
-try:
-    with open(MODEL_PATH, 'rb') as f:
-        model = pickle.load(f)
-    with open(SCALER_PATH, 'rb') as f:
-        scaler = pickle.load(f)
-except Exception as e:
-    model = None
-    scaler = None
-    print(f"Error cargando modelos: {e}")
-
-class PatientData(BaseModel):
-    hba1c: float
-    glucose_postprandial: float
-    glucose_fasting: float
-    age: int
-    bmi: float
-    systolic_bp: float
-    cholesterol_total: float
-    physical_activity_minutes_per_week: float
+class InputData(BaseModel):
+    hba1c: float = Field(
+        ..., 
+        description="Hemoglobina Glicosilada (Promedio azúcar 3 meses). Rango normal: 4-5.6%", 
+        ge=0, le=20, 
+        example=5.5
+    )
+    glucose_postprandial: int = Field(
+        ..., 
+        description="Glucosa 2 horas después de comer (mg/dL).", 
+        ge=0, le=500, 
+        example=140
+    )
+    glucose_fasting: int = Field(
+        ..., 
+        description="Glucosa en ayunas (mg/dL).", 
+        ge=0, le=500, 
+        example=90
+    )
+    age: int = Field(
+        ..., 
+        description="Edad del paciente en años.", 
+        ge=0, le=120, 
+        example=35
+    )
+    bmi: float = Field(
+        ..., 
+        description="Índice de Masa Corporal (Peso/Altura²).", 
+        ge=10, le=60, 
+        example=24.5
+    )
+    systolic_bp: int = Field(
+        ..., 
+        description="Presión arterial sistólica (mm Hg).", 
+        ge=50, le=250, 
+        example=120
+    )
+    cholesterol_total: int = Field(
+        ..., 
+        description="Colesterol total (mg/dL).", 
+        ge=50, le=500, 
+        example=180
+    )
+    physical_activity_minutes_per_week: int = Field(
+        ..., 
+        description="Minutos de ejercicio a la semana.", 
+        ge=0, le=10080, 
+        example=150
+    )
 
 @app.get("/")
 def home():
-    return {"status": "ok", "message": "API Diabetes Online (GCP)"}
+    return {"message": "API de Predicción de Diabetes funcionando correctamente"}
 
 @app.post("/predict")
-def predict(data: PatientData):
-    if not model:
-        raise HTTPException(status_code=500, detail="Modelo no cargado")
-    
+def predict(data: InputData):
+    # Convertir los datos a DataFrame
     df = pd.DataFrame([data.dict()])
-    df_scaled = scaler.transform(df)
     
-    pred = model.predict(df_scaled)[0]
-    prob = model.predict_proba(df_scaled)[0][1]
+    # Realizar la predicción
+    prediction = model.predict(df)
     
-    return {
-        "prediccion": int(pred),
-        "probabilidad": round(float(prob), 4),
-        "mensaje": "Alto Riesgo" if pred == 1 else "Bajo Riesgo"
-    }
+    # Devolver el resultado
+    result = "Positivo (Riesgo Alto)" if prediction[0] == 1 else "Negativo (Riesgo Bajo)"
+    return {"prediccion": result, "datos_recibidos": data.dict()}
