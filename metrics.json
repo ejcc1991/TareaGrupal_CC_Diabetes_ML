@@ -1,0 +1,27 @@
+{
+    "descripcion": "Modelo Random Forest Binario (Optimizado)",
+    "threshold_optimo": 0.479761401585733,
+    "metricas_globales": {
+        "accuracy": 0.9224666666666667,
+        "roc_auc": 0.9424707107652452,
+        "precision": 1.0,
+        "recall": 0.8702949868956672,
+        "f1_score": 0.9306499701848538
+    },
+    "matriz_confusion": {
+        "verdaderos_negativos": 12067,
+        "falsos_positivos": 0,
+        "falsos_negativos": 2326,
+        "verdaderos_positivos": 15607
+    },
+    "importancia_variables": {
+        "hba1c": 0.5908041456351825,
+        "glucose_postprandial": 0.2561287316604308,
+        "glucose_fasting": 0.11947928989752007,
+        "age": 0.008020870329933047,
+        "bmi": 0.006870266963726772,
+        "systolic_bp": 0.005226386521432136,
+        "cholesterol_total": 0.005788663120673918,
+        "physical_activity_minutes_per_week": 0.007681645871100828
+    }
+}
