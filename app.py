@@ -86,7 +86,7 @@ def predict(data: InputData):
         
         # C. Lógica de 3 ZONAS (Prediabetes activado)
         # Umbral Alto (Diabetes): Usamos el 0.48 del entrenamiento
-        UMBRAL_DIABETES = 0.48
+        UMBRAL_DIABETES = 0.4798
         # Umbral Bajo (Prediabetes): Definimos 0.30 para captar riesgo temprano
         UMBRAL_PREDIABETES = 0.30 
         
