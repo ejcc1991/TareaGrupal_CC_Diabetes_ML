@@ -73,7 +73,7 @@ def health_check():
     return {
         "status": "online",
         "service": "diabetes-prediction-api",
-        "version": "3.0.1"
+        "version": "3.0.1",
         "model_ready": model is not None,
         "scaler_ready": scaler is not None,
         "message": "API lista para recibir datos en /predict"
